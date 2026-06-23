@@ -1,0 +1,174 @@
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DeviceService } from '../../../application/services/device.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { DeviceCatalog } from '../../../domain/models/device.model';
+import { signal } from '@angular/core';
+
+@Component({
+  selector: 'app-catalog-form-dialog',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  template: `
+    <div class="dlg">
+      <div class="dlg-header">
+        <div class="dlg-icon"><mat-icon>{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon></div>
+        <div>
+          <h2 class="dlg-title">{{ isEdit ? 'Editar modelo' : 'Nuevo modelo' }}</h2>
+          <p class="dlg-sub">{{ isEdit ? 'Modifica los datos del modelo' : 'Agrega un nuevo modelo al catálogo' }}</p>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="dlg-form">
+
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-lbl">NOMBRE DEL MODELO <span class="req">*</span></label>
+            <input formControlName="name" class="field-input"
+                   [class.err]="form.get('name')!.invalid && form.get('name')!.touched"
+                   placeholder="iPhone 16 Pro Max">
+            @if (form.get('name')!.invalid && form.get('name')!.touched) {
+              <span class="field-error">El nombre es requerido</span>
+            }
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-lbl">MARCA <span class="req">*</span></label>
+            <input formControlName="brand" class="field-input"
+                   [class.err]="form.get('brand')!.invalid && form.get('brand')!.touched"
+                   placeholder="Apple">
+          </div>
+          <div class="field-group w140">
+            <label class="field-lbl">AÑO <span class="req">*</span></label>
+            <input formControlName="releaseYear" type="number" class="field-input"
+                   [class.err]="form.get('releaseYear')!.invalid && form.get('releaseYear')!.touched"
+                   placeholder="2024">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-lbl">CICLOS MÁXIMOS</label>
+            <input formControlName="maxCycles" type="number" class="field-input" placeholder="1000">
+          </div>
+          <div class="field-group w140">
+            <label class="field-lbl">ORDEN</label>
+            <input formControlName="sortOrder" type="number" class="field-input" placeholder="0">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-lbl">URL DE IMAGEN <span class="opt">(opcional)</span></label>
+          <input formControlName="imageUrl" class="field-input" placeholder="https://...">
+        </div>
+
+        <div class="dlg-actions">
+          <button type="button" mat-stroked-button (click)="dialogRef.close(false)">Cancelar</button>
+          <button type="submit" mat-flat-button color="primary" class="btn-save" [disabled]="saving() || form.invalid">
+            @if (saving()) {
+              <mat-progress-spinner diameter="16" mode="indeterminate" />
+            } @else {
+              <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+              {{ isEdit ? 'Guardar cambios' : 'Agregar modelo' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  `,
+  styles: [`
+    .dlg { padding: 28px; min-width: 400px; }
+    .dlg-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+    .dlg-icon {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      background: rgba(139,92,246,0.12);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dlg-icon mat-icon { color: #8b5cf6; font-size: 22px; width: 22px; height: 22px; }
+    .dlg-title { font-size: 18px; font-weight: 700; margin: 0 0 2px; color: var(--text-primary); }
+    .dlg-sub   { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+    .dlg-form { display: flex; flex-direction: column; gap: 14px; }
+    .field-row { display: flex; gap: 12px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-grow { flex: 1; }
+    .w140 { width: 140px; flex-shrink: 0; }
+
+    .field-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; color: var(--text-muted); }
+    .req { color: #f87171; }
+    .opt { font-size: 10px; font-weight: 400; color: var(--text-muted); }
+
+    .field-input {
+      height: 40px; padding: 0 12px;
+      border: 1px solid var(--border-color); border-radius: 8px;
+      font-size: 14px; color: var(--text-primary); background: var(--hover-bg);
+      outline: none; width: 100%; box-sizing: border-box; font-family: var(--font-sans);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field-input::placeholder { color: var(--input-placeholder); }
+    .field-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+    .field-input.err { border-color: #f87171; }
+    .field-error { font-size: 11px; color: #f87171; }
+
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+    .btn-save { display: flex; align-items: center; gap: 6px; font-weight: 600; border-radius: 8px !important; }
+    .btn-save mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  `]
+})
+export class CatalogFormDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<CatalogFormDialogComponent>);
+  private readonly data: DeviceCatalog | null = inject(MAT_DIALOG_DATA);
+  private readonly svc    = inject(DeviceService);
+  private readonly notify = inject(NotificationService);
+  private readonly fb     = inject(FormBuilder);
+
+  readonly saving = signal(false);
+  readonly isEdit = !!this.data;
+
+  readonly form = this.fb.group({
+    name:        [this.data?.name        ?? '',    Validators.required],
+    brand:       [this.data?.brand       ?? 'Apple', Validators.required],
+    releaseYear: [this.data?.releaseYear ?? new Date().getFullYear(), [Validators.required, Validators.min(2007)]],
+    maxCycles:   [this.data?.maxCycles   ?? 1000,  Validators.required],
+    sortOrder:   [this.data?.sortOrder   ?? 0],
+    imageUrl:    [this.data?.imageUrl    ?? '']
+  });
+
+  submit(): void {
+    if (this.form.invalid) return;
+    this.saving.set(true);
+
+    const v = this.form.value;
+    const payload = {
+      name:        v.name!,
+      brand:       v.brand!,
+      releaseYear: v.releaseYear!,
+      maxCycles:   v.maxCycles!,
+      sortOrder:   v.sortOrder ?? 0,
+      imageUrl:    v.imageUrl || undefined
+    };
+
+    const request$ = this.isEdit
+      ? this.svc.updateCatalogDevice(this.data!.id, payload)
+      : this.svc.createCatalogDevice(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.notify.success(this.isEdit ? 'Modelo actualizado.' : 'Modelo agregado al catálogo.');
+        this.dialogRef.close(true);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.notify.error('No se pudo guardar el modelo.');
+      }
+    });
+  }
+}

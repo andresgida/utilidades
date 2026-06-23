@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6d3bd7">
+  <meta name="description" content="UTILIDADES — Enterprise modular productivity platform">
+
+  <title>UTILIDADES</title>
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Vivid Flux Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Favicon inline SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236d3bd7'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='800' font-family='Montserrat,sans-serif'>U</text></svg>">
+
+  <!-- Anti-FOUC: apply theme before Angular boots -->
+  <script>
+    (function() {
+      var stored = localStorage.getItem('utilidades-theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var dark = stored ? stored === 'dark' : prefersDark;
+      if (dark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.background = '#0b1326';
+      } else {
+        document.documentElement.style.background = '#f5f3ff';
+      }
+    })();
+  </script>
+
+  <!-- Critical CSS -->
+  <style>
+    html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    app-root   { display: block; height: 100vh; }
+  </style>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

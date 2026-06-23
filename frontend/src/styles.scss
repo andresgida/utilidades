@@ -1,0 +1,346 @@
+@use '@angular/material' as mat;
+@import '@angular/cdk/overlay-prebuilt.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// ── Material themes (light + dark) ─────────────────────────────
+$light-theme: mat.define-theme((
+  color: (theme-type: light, primary: mat.$violet-palette, tertiary: mat.$cyan-palette),
+  density: (scale: 0)
+));
+
+$dark-theme: mat.define-theme((
+  color: (theme-type: dark, primary: mat.$violet-palette, tertiary: mat.$cyan-palette),
+  density: (scale: 0)
+));
+
+:root {
+  @include mat.all-component-themes($light-theme);
+  color-scheme: light;
+}
+
+.dark {
+  @include mat.all-component-colors($dark-theme);
+  color-scheme: dark;
+}
+
+// ── CSS Design tokens ───────────────────────────────────────────
+// LIGHT MODE (default)
+:root {
+  // Layout
+  --sidebar-width: 272px;
+  --topbar-height: 60px;
+
+  // Surface colors (light)
+  --bg-base:        #f5f3ff;
+  --surface-bg:     rgba(255, 255, 255, 0.85);
+  --sidebar-bg:     rgba(255, 255, 255, 0.96);
+  --card-bg:        rgba(255, 255, 255, 0.82);
+  --hover-bg:       rgba(109, 59, 215, 0.07);
+  --border-color:   rgba(109, 59, 215, 0.1);
+
+  // Text (light)
+  --text-primary:   #1a1024;
+  --text-secondary: #4a3a5e;
+  --text-muted:     #8b7ea0;
+
+  // Brand palette (light — darker for contrast)
+  --primary:         #6d3bd7;
+  --primary-dim:     #8b50f5;
+  --primary-deep:    #4e22b8;
+  --primary-glow:    rgba(109, 59, 215, 0.2);
+  --secondary:       #0096b3;
+  --secondary-deep:  #007a93;
+  --secondary-glow:  rgba(0, 150, 179, 0.2);
+  --tertiary:        #b5305e;
+  --error:           #b3261e;
+
+  // Shell tokens (light)
+  --topbar-bg:       rgba(255, 255, 255, 0.92);
+  --sidebar-border:  rgba(109, 59, 215, 0.08);
+  --topbar-border:   rgba(109, 59, 215, 0.08);
+  --nav-text:        #4a3a5e;
+  --nav-text-hover:  #1a1024;
+  --nav-text-active: #4e22b8;
+  --nav-bg-hover:    rgba(109, 59, 215, 0.07);
+  --nav-bg-active:   rgba(109, 59, 215, 0.12);
+  --input-bg:        rgba(255, 255, 255, 0.9);
+  --input-placeholder: #b0a0c0;
+  --orb-opacity:     0.14;
+  --user-avatar-border: rgba(109, 59, 215, 0.25);
+  --collapse-btn-color: #8b7ea0;
+  --logout-btn-color: #b3261e;
+  --logo-sub-color:  #8b7ea0;
+
+  // Gradients
+  --gradient-primary: linear-gradient(135deg, #6d3bd7 0%, #03b5d3 100%);
+  --gradient-soft:    linear-gradient(135deg, rgba(109,59,215,0.08), rgba(3,181,211,0.05));
+
+  // Typography
+  --font-heading: 'Montserrat', -apple-system, sans-serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  // Radii
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  // Shadows (light)
+  --shadow-card:       0 4px 20px rgba(109, 59, 215, 0.08);
+  --shadow-card-hover: 0 12px 40px rgba(109, 59, 215, 0.14);
+  --shadow-glass:      0 4px 20px rgba(109, 59, 215, 0.1);
+  --shadow-glow:       0 0 20px rgba(109, 59, 215, 0.2);
+}
+
+// DARK MODE
+.dark {
+  // Surface colors
+  --bg-base:        #0d1117;
+  --surface-bg:     #141928;
+  --sidebar-bg:     #141928;
+  --card-bg:        #1b2034;
+  --hover-bg:       rgba(255, 255, 255, 0.04);
+  --border-color:   rgba(255, 255, 255, 0.07);
+
+  // Text
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+
+  // Brand palette (dark)
+  --primary:         #8b5cf6;
+  --primary-dim:     #7c3aed;
+  --primary-deep:    #6d28d9;
+  --primary-glow:    rgba(139, 92, 246, 0.3);
+  --secondary:       #22d3ee;
+  --secondary-deep:  #06b6d4;
+  --secondary-glow:  rgba(34, 211, 238, 0.3);
+  --tertiary:        #f472b6;
+  --error:           #f87171;
+
+  // Shell tokens (dark)
+  --topbar-bg:       #0d1117;
+  --sidebar-border:  rgba(255, 255, 255, 0.06);
+  --topbar-border:   rgba(255, 255, 255, 0.06);
+  --nav-text:        #94a3b8;
+  --nav-text-hover:  #f1f5f9;
+  --nav-text-active: #ffffff;
+  --nav-bg-hover:    rgba(255, 255, 255, 0.05);
+  --nav-bg-active:   #6d28d9;
+  --input-bg:        rgba(255, 255, 255, 0.06);
+  --input-placeholder: #475569;
+  --orb-opacity:     0;
+  --user-avatar-border: rgba(139, 92, 246, 0.7);
+  --collapse-btn-color: #64748b;
+  --logout-btn-color:   #94a3b8;
+  --logo-sub-color:     #64748b;
+
+  // Shadows (dark)
+  --shadow-card:       0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-glass:      0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-glow:       0 0 24px rgba(139, 92, 246, 0.2);
+
+  // Gradients (dark)
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%);
+  --gradient-soft:    linear-gradient(135deg, rgba(139,92,246,0.1), rgba(34,211,238,0.06));
+}
+
+// ── Base styles ─────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bg-base);
+  background-image: none;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* Orbs only in dark mode */
+.dark body {
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(139, 92, 246, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(34, 211, 238, 0.12) 0%, transparent 50%);
+}
+
+// ── Typography ──────────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+p { color: var(--text-secondary); line-height: 1.6; }
+a { color: var(--primary); text-decoration: none; }
+code, pre { font-family: var(--font-mono); }
+
+// ── Material overrides ──────────────────────────────────────────
+.mat-mdc-form-field {
+  .mdc-text-field--outlined {
+    --mdc-outlined-text-field-container-shape: var(--radius-md);
+    --mdc-outlined-text-field-outline-color: var(--border-color);
+    --mdc-outlined-text-field-hover-outline-color: var(--primary-dim);
+    --mdc-outlined-text-field-focus-outline-color: var(--primary);
+    --mdc-outlined-text-field-input-text-color: var(--text-primary);
+    --mdc-outlined-text-field-label-text-color: var(--text-muted);
+    background: var(--input-bg);
+  }
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: 0px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.mat-mdc-dialog-surface {
+  background: var(--surface-bg) !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--border-color) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-card-hover) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+
+.cdk-overlay-container {
+  z-index: 1050;
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cdk-overlay-pane {
+  max-width: 95vw !important;
+  max-height: 95vh !important;
+}
+
+.mat-mdc-snack-bar-container {
+  border-radius: var(--radius-md) !important;
+  backdrop-filter: blur(16px) !important;
+
+  &.snack-success { --mdc-snackbar-container-color: rgba(16,185,129,0.15); --mdc-snackbar-supporting-text-color: #6ee7b7; }
+  &.snack-error   { --mdc-snackbar-container-color: rgba(239,68,68,0.15); --mdc-snackbar-supporting-text-color: #fca5a5; }
+  &.snack-warning { --mdc-snackbar-container-color: rgba(245,158,11,0.15); --mdc-snackbar-supporting-text-color: #fcd34d; }
+  &.snack-info    { --mdc-snackbar-container-color: rgba(76,215,246,0.12); --mdc-snackbar-supporting-text-color: #4cd7f6; }
+}
+
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-flat-button, .mat-mdc-stroked-button {
+  border-radius: var(--radius-md) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.mat-mdc-flat-button.mat-primary {
+  background: var(--gradient-primary) !important;
+  box-shadow: 0 4px 16px var(--primary-glow) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 8px 24px var(--secondary-glow) !important;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) { transform: translateY(0); }
+}
+
+// ── Native form controls dark mode ──────────────────────────────
+// color-scheme: dark (set above on .dark) makes native dropdowns dark in
+// Chrome/Edge/Firefox. These rules are an explicit fallback for older engines.
+.dark select,
+.dark input[type="date"],
+.dark input[type="number"],
+.dark input[type="text"],
+.dark input[type="email"],
+.dark textarea {
+  color-scheme: dark;
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark option {
+  background: #1b2034;
+  color: #f1f5f9;
+}
+
+.dark option:checked,
+.dark option:hover {
+  background: #4c1d95;
+  color: #fff;
+}
+
+// ── Scrollbar ───────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(208,188,255,0.3); }
+
+// ── Utility classes ─────────────────────────────────────────────
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.glass {
+  background: var(--card-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.gradient-btn {
+  background: var(--gradient-primary);
+  color: white; border: none; border-radius: 9999px;
+  font-weight: 700; cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(109,59,215,0.4);
+  &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(76,215,246,0.4); }
+  &:active:not(:disabled) { transform: scale(0.98); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, var(--border-color) 25%, var(--hover-bg) 50%, var(--border-color) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}

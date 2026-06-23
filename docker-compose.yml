@@ -1,0 +1,89 @@
+services:
+  # =========================================================
+  # PostgreSQL 16
+  # =========================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: utilidades-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-utilidades_db}
+      POSTGRES_USER: ${POSTGRES_USER:-utilidades_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMe_SuperSecure123!}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-utilidades_user} -d ${POSTGRES_DB:-utilidades_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - utilidades-network
+
+  # =========================================================
+  # .NET 9 Backend API
+  # =========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: utilidades-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-utilidades_db};Username=${POSTGRES_USER:-utilidades_user};Password=${POSTGRES_PASSWORD:-ChangeMe_SuperSecure123!}"
+      JWT__Secret: ${JWT__Secret:-ChangeMe_AtLeast32CharactersLong_SuperSecret!}
+      JWT__Issuer: ${JWT__Issuer:-https://utilidades.app}
+      JWT__Audience: ${JWT__Audience:-https://utilidades.app}
+      JWT__AccessTokenExpiryMinutes: ${JWT__AccessTokenExpiryMinutes:-15}
+      JWT__RefreshTokenExpiryDays: ${JWT__RefreshTokenExpiryDays:-7}
+      AllowedOrigins: ${AllowedOrigins:-http://localhost:4200}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - backend_nuget:/root/.nuget/packages
+    networks:
+      - utilidades-network
+
+  # =========================================================
+  # Angular 18 Frontend
+  # =========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: utilidades-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    networks:
+      - utilidades-network
+
+volumes:
+  postgres_data:
+    driver: local
+  backend_nuget:
+    driver: local
+  frontend_node_modules:
+    driver: local
+
+networks:
+  utilidades-network:
+    driver: bridge
