@@ -63,7 +63,12 @@ import { DeviceFormDialogComponent } from '../device-form-dialog/device-form-dia
             <div class="device-card" [style.animation-delay]="(i * 80) + 'ms'">
               <div class="dc-header">
                 <div class="dc-brand-icon">
-                  <span>🍎</span>
+                  @if (d.catalogImageUrl) {
+                    <img [src]="d.catalogImageUrl" [alt]="d.catalogDeviceName || d.deviceName"
+                         class="dc-catalog-img" (error)="onImgError($event)">
+                  } @else {
+                    <span>🍎</span>
+                  }
                 </div>
                 <div class="dc-info">
                   <div class="dc-name">{{ d.deviceName }}</div>
@@ -175,7 +180,10 @@ import { DeviceFormDialogComponent } from '../device-form-dialog/device-form-dia
       width: 48px; height: 48px; border-radius: 14px;
       background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(52,211,153,0.08));
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px;
+      font-size: 24px; overflow: hidden; flex-shrink: 0;
+    }
+    .dc-catalog-img {
+      width: 100%; height: 100%; object-fit: contain; display: block;
     }
 
     .dc-name    { font-size: 16px; font-weight: 700; color: var(--text-primary); }
@@ -237,6 +245,10 @@ export class DeviceListComponent implements OnInit {
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) this.notify.success('Dispositivo actualizado.');
     });
+  }
+
+  onImgError(e: Event): void {
+    (e.target as HTMLImageElement).style.display = 'none';
   }
 
   confirmDelete(device: AppleDevice): void {

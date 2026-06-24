@@ -3,6 +3,7 @@ export interface AppleDevice {
   deviceName: string;
   catalogDeviceId?: string;
   catalogDeviceName?: string;
+  catalogImageUrl?: string;
   purchaseDate: string;
   isCustomDevice: boolean;
   createdAt: string;

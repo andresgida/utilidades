@@ -21,8 +21,8 @@ public sealed class GetDevicesQueryHandler : IRequestHandler<GetDevicesQuery, IE
 
         return devices.Select(d => new AppleDeviceDto(
             d.Id, d.DeviceName, d.CatalogDeviceId,
-            d.CatalogDevice?.Name, d.PurchaseDate,
-            d.IsCustomDevice, d.CreatedAt, d.CycleRecords.Count));
+            d.CatalogDevice?.Name, d.CatalogDevice?.ImageUrl,
+            d.PurchaseDate, d.IsCustomDevice, d.CreatedAt, d.CycleRecords.Count));
     }
 }
 

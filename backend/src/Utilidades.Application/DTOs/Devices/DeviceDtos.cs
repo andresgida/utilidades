@@ -5,6 +5,7 @@ public record AppleDeviceDto(
     string DeviceName,
     Guid? CatalogDeviceId,
     string? CatalogDeviceName,
+    string? CatalogImageUrl,
     DateOnly PurchaseDate,
     bool IsCustomDevice,
     DateTime CreatedAt,
