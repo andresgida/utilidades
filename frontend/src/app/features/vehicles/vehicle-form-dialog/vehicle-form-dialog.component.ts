@@ -254,7 +254,16 @@ import { Vehicle } from '../../../domain/models/vehicle.model';
     .upload-icon { font-size: 32px; width: 32px; height: 32px; color: var(--text-muted); }
     .upload-text { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
     .upload-hint { font-size: 11px; color: var(--text-muted); }
-    .img-preview { width: 100%; height: 160px; object-fit: cover; display: block; border-radius: 10px; }
+    .img-preview {
+      width: 100%; height: 160px; object-fit: contain; display: block; border-radius: 10px;
+      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #f0f0f0;
+    }
     .img-remove {
       position: absolute; top: 6px; right: 6px;
       background: rgba(0,0,0,0.55); border: none; border-radius: 50%;
@@ -318,7 +327,17 @@ export class VehicleFormDialogComponent {
           if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
           const canvas = document.createElement('canvas');
           canvas.width = w; canvas.height = h;
-          canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, w, h);
+          const mayHaveAlpha = file.type === 'image/png' || file.type === 'image/webp';
+          if (mayHaveAlpha) {
+            const data = ctx.getImageData(0, 0, w, h).data;
+            let transparent = false;
+            for (let i = 3; i < data.length; i += 4) {
+              if (data[i] < 255) { transparent = true; break; }
+            }
+            if (transparent) { resolve(canvas.toDataURL('image/png')); return; }
+          }
           resolve(canvas.toDataURL('image/jpeg', quality));
         };
         img.onerror = reject;
