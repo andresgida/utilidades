@@ -48,7 +48,7 @@ public class VehiclesController : ControllerBase
     {
         var result = await _mediator.Send(new CreateVehicleCommand(
             CurrentUserId, dto.Name, dto.Brand, dto.Model,
-            dto.Year, dto.LicensePlate, dto.StartCountDate, dto.BaseMileage), ct);
+            dto.Year, dto.LicensePlate, dto.StartCountDate, dto.BaseMileage, dto.ImageUrl), ct);
 
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
@@ -62,7 +62,7 @@ public class VehiclesController : ControllerBase
     {
         var result = await _mediator.Send(new UpdateVehicleCommand(
             id, CurrentUserId, dto.Name, dto.Brand, dto.Model,
-            dto.Year, dto.LicensePlate, dto.StartCountDate, dto.BaseMileage), ct);
+            dto.Year, dto.LicensePlate, dto.StartCountDate, dto.BaseMileage, dto.ImageUrl), ct);
 
         return Ok(result);
     }

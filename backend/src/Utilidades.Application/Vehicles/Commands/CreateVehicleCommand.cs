@@ -14,7 +14,8 @@ public record CreateVehicleCommand(
     int Year,
     string? LicensePlate,
     DateOnly StartCountDate,
-    decimal BaseMileage) : IRequest<VehicleDto>;
+    decimal BaseMileage,
+    string? ImageUrl = null) : IRequest<VehicleDto>;
 
 public sealed class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, VehicleDto>
 {
@@ -37,7 +38,8 @@ public sealed class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleC
             request.Year,
             request.StartCountDate,
             request.BaseMileage,
-            request.LicensePlate);
+            request.LicensePlate,
+            request.ImageUrl);
 
         await _vehicleRepository.AddAsync(vehicle, ct);
         await _vehicleRepository.SaveChangesAsync(ct);
@@ -50,5 +52,5 @@ public sealed class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleC
 
     private static VehicleDto MapToDto(Vehicle v) => new(
         v.Id, v.Name, v.Brand, v.Model, v.Year, v.LicensePlate,
-        v.StartCountDate, v.BaseMileage, v.IsActive, v.CreatedAt, v.MileageRecords.Count);
+        v.StartCountDate, v.BaseMileage, v.IsActive, v.CreatedAt, v.MileageRecords.Count, v.ImageUrl);
 }

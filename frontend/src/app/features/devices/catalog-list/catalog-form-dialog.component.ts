@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,7 +8,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DeviceService } from '../../../application/services/device.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { DeviceCatalog } from '../../../domain/models/device.model';
-import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-catalog-form-dialog',
@@ -66,8 +65,21 @@ import { signal } from '@angular/core';
         </div>
 
         <div class="field-group">
-          <label class="field-lbl">URL DE IMAGEN <span class="opt">(opcional)</span></label>
-          <input formControlName="imageUrl" class="field-input" placeholder="https://...">
+          <label class="field-lbl">IMAGEN DEL MODELO <span class="opt">(opcional)</span></label>
+          <div class="upload-area" (click)="imgFileInput.click()" [class.has-image]="imagePreview()">
+            @if (imagePreview()) {
+              <img [src]="imagePreview()!" class="img-preview" alt="Vista previa">
+              <button type="button" class="img-remove" (click)="removeImage($event)">
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else {
+              <mat-icon class="upload-icon">add_photo_alternate</mat-icon>
+              <span class="upload-text">Haz clic para subir una imagen</span>
+              <span class="upload-hint">JPG, PNG, WEBP · máx. 5 MB</span>
+            }
+          </div>
+          <input #imgFileInput type="file" accept="image/*" style="display:none"
+                 (change)="onFileSelected($event)">
         </div>
 
         <div class="dlg-actions">
@@ -118,6 +130,26 @@ import { signal } from '@angular/core';
     .field-input.err { border-color: #f87171; }
     .field-error { font-size: 11px; color: #f87171; }
 
+    .upload-area {
+      border: 2px dashed var(--border-color); border-radius: 10px;
+      min-height: 100px; cursor: pointer; position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+      transition: border-color 0.2s, background 0.2s; overflow: hidden;
+    }
+    .upload-area:hover { border-color: #8b5cf6; background: rgba(139,92,246,0.04); }
+    .upload-area.has-image { border-style: solid; min-height: 130px; padding: 0; }
+    .upload-icon { font-size: 28px; width: 28px; height: 28px; color: var(--text-muted); }
+    .upload-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .upload-hint { font-size: 11px; color: var(--text-muted); }
+    .img-preview { width: 100%; height: 130px; object-fit: contain; display: block; background: var(--hover-bg); }
+    .img-remove {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,0.55); border: none; border-radius: 50%;
+      width: 26px; height: 26px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: white;
+    }
+    .img-remove mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
     .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
     .btn-save { display: flex; align-items: center; gap: 6px; font-weight: 600; border-radius: 8px !important; }
     .btn-save mat-icon { font-size: 18px; width: 18px; height: 18px; }
@@ -132,6 +164,7 @@ export class CatalogFormDialogComponent {
 
   readonly saving = signal(false);
   readonly isEdit = !!this.data;
+  readonly imagePreview = signal<string | null>(this.data?.imageUrl ?? null);
 
   readonly form = this.fb.group({
     name:        [this.data?.name        ?? '',    Validators.required],
@@ -141,6 +174,42 @@ export class CatalogFormDialogComponent {
     sortOrder:   [this.data?.sortOrder   ?? 0],
     imageUrl:    [this.data?.imageUrl    ?? '']
   });
+
+  async onFileSelected(event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('La imagen no puede superar 5 MB'); return; }
+    const b64 = await this.compressImage(file);
+    this.imagePreview.set(b64);
+    this.form.patchValue({ imageUrl: b64 });
+  }
+
+  removeImage(e: Event): void {
+    e.stopPropagation();
+    this.imagePreview.set(null);
+    this.form.patchValue({ imageUrl: '' });
+  }
+
+  private compressImage(file: File, maxW = 800, quality = 0.78): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          let { width: w, height: h } = img;
+          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = ev.target!.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   submit(): void {
     if (this.form.invalid) return;

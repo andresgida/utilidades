@@ -104,7 +104,7 @@ public class DeviceCatalogConfiguration : IEntityTypeConfiguration<DeviceCatalog
         builder.Property(c => c.ReleaseYear).HasColumnName("release_year").IsRequired();
         builder.Property(c => c.MaxCycles).HasColumnName("max_cycles").HasDefaultValue(1000);
         builder.Property(c => c.IsOfficial).HasColumnName("is_official").HasDefaultValue(true);
-        builder.Property(c => c.ImageUrl).HasColumnName("image_url").HasMaxLength(512);
+        builder.Property(c => c.ImageUrl).HasColumnName("image_url");
         builder.Property(c => c.SortOrder).HasColumnName("sort_order").HasDefaultValue(0);
         builder.Property(c => c.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(c => c.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);

@@ -69,6 +69,14 @@ import { VehicleFormDialogComponent } from '../vehicle-form-dialog/vehicle-form-
         <div class="vehicles-grid">
           @for (v of svc.vehicles(); track v.id; let i = $index) {
             <div class="vehicle-card" [style.animation-delay]="(i * 80) + 'ms'">
+              <div class="vc-hero">
+                @if (v.imageUrl) {
+                  <img [src]="v.imageUrl" [alt]="v.name" class="vc-img">
+                } @else {
+                  <mat-icon class="vc-placeholder-icon">directions_car</mat-icon>
+                }
+              </div>
+              <div class="vc-content">
               <div class="vc-header">
                 <div class="vc-badge">{{ v.brand }}</div>
                 <div class="vc-status" [class.active]="v.isActive" [class.inactive]="!v.isActive">
@@ -105,6 +113,7 @@ import { VehicleFormDialogComponent } from '../vehicle-form-dialog/vehicle-form-
                 <button mat-icon-button (click)="confirmDelete(v)" matTooltip="Eliminar" color="warn">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
+              </div>
               </div>
             </div>
           }
@@ -171,12 +180,26 @@ import { VehicleFormDialogComponent } from '../vehicle-form-dialog/vehicle-form-
       backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
       border: 1px solid var(--border-color);
       border-radius: 20px;
-      padding: 24px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
       transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, border-color 0.25s ease;
       animation: fadeUp 0.5s ease-out both;
+    }
+
+    .vc-hero {
+      width: 100%; height: 170px;
+      background: linear-gradient(145deg, #0d1b3e 0%, #0a2744 50%, #0d2d3a 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .vc-img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .vc-placeholder-icon {
+      font-size: 64px; width: 64px; height: 64px;
+      color: rgba(16,185,129,0.35);
     }
 
     .vehicle-card:hover {
@@ -184,6 +207,8 @@ import { VehicleFormDialogComponent } from '../vehicle-form-dialog/vehicle-form-
       box-shadow: 0 12px 40px rgba(0,0,0,0.1);
       border-color: rgba(90,111,248,0.3);
     }
+
+    .vc-content { padding: 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 
     .vc-header { display: flex; justify-content: space-between; align-items: center; }
 

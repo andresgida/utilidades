@@ -11,7 +11,8 @@ public record VehicleDto(
     decimal BaseMileage,
     bool IsActive,
     DateTime CreatedAt,
-    int TotalRecords);
+    int TotalRecords,
+    string? ImageUrl);
 
 public record VehicleDetailDto(
     Guid Id,
@@ -24,6 +25,7 @@ public record VehicleDetailDto(
     decimal BaseMileage,
     bool IsActive,
     DateTime CreatedAt,
+    string? ImageUrl,
     IEnumerable<MileageRecordDto> Records,
     VehicleStatisticsDto Statistics);
 
@@ -50,7 +52,8 @@ public record CreateVehicleDto(
     int Year,
     string? LicensePlate,
     DateOnly StartCountDate,
-    decimal BaseMileage);
+    decimal BaseMileage,
+    string? ImageUrl = null);
 
 public record UpdateVehicleDto(
     string Name,
@@ -59,7 +62,8 @@ public record UpdateVehicleDto(
     int Year,
     string? LicensePlate,
     DateOnly StartCountDate,
-    decimal BaseMileage);
+    decimal BaseMileage,
+    string? ImageUrl = null);
 
 public record CreateMileageRecordDto(
     DateOnly RecordDate,

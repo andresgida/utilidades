@@ -14,7 +14,8 @@ public record UpdateVehicleCommand(
     int Year,
     string? LicensePlate,
     DateOnly StartCountDate,
-    decimal BaseMileage) : IRequest<VehicleDto>;
+    decimal BaseMileage,
+    string? ImageUrl = null) : IRequest<VehicleDto>;
 
 public sealed class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand, VehicleDto>
 {
@@ -36,7 +37,7 @@ public sealed class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleC
             throw new UnauthorizedAccessException("Access denied.");
 
         vehicle.Update(request.Name, request.Brand, request.Model, request.Year,
-            request.LicensePlate, request.StartCountDate, request.BaseMileage);
+            request.LicensePlate, request.StartCountDate, request.BaseMileage, request.ImageUrl);
         vehicle.SetUpdatedBy(request.UserId.ToString());
 
         await _vehicleRepository.UpdateAsync(vehicle, ct);
@@ -47,6 +48,6 @@ public sealed class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleC
         return new VehicleDto(
             vehicle.Id, vehicle.Name, vehicle.Brand, vehicle.Model, vehicle.Year,
             vehicle.LicensePlate, vehicle.StartCountDate, vehicle.BaseMileage,
-            vehicle.IsActive, vehicle.CreatedAt, vehicle.MileageRecords.Count);
+            vehicle.IsActive, vehicle.CreatedAt, vehicle.MileageRecords.Count, vehicle.ImageUrl);
     }
 }

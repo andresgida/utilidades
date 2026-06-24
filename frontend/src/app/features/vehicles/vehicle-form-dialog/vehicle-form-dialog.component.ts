@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -87,6 +87,24 @@ import { Vehicle } from '../../../domain/models/vehicle.model';
                    placeholder="0">
             <span class="input-suffix">km</span>
           </div>
+        </div>
+
+        <div class="field-group span-2">
+          <label class="field-label">Foto del vehículo <span class="optional">(opcional)</span></label>
+          <div class="upload-area" (click)="fileInput.click()" [class.has-image]="imagePreview()">
+            @if (imagePreview()) {
+              <img [src]="imagePreview()!" class="img-preview" alt="Vista previa">
+              <button type="button" class="img-remove" (click)="removeImage($event)">
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else {
+              <mat-icon class="upload-icon">add_photo_alternate</mat-icon>
+              <span class="upload-text">Haz clic para subir una foto</span>
+              <span class="upload-hint">JPG, PNG, WEBP · máx. 5 MB</span>
+            }
+          </div>
+          <input #fileInput type="file" accept="image/*" style="display:none"
+                 (change)="onFileSelected($event)">
         </div>
 
       </form>
@@ -224,6 +242,27 @@ import { Vehicle } from '../../../domain/models/vehicle.model';
     .btn-save:hover:not(:disabled) { background: #4558e8; }
     .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
 
+    .upload-area {
+      border: 2px dashed var(--border-color); border-radius: 12px;
+      min-height: 120px; cursor: pointer; position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      transition: border-color 0.2s, background 0.2s;
+      overflow: hidden;
+    }
+    .upload-area:hover { border-color: #5a6ff8; background: rgba(90,111,248,0.04); }
+    .upload-area.has-image { border-style: solid; padding: 0; min-height: 160px; }
+    .upload-icon { font-size: 32px; width: 32px; height: 32px; color: var(--text-muted); }
+    .upload-text { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .upload-hint { font-size: 11px; color: var(--text-muted); }
+    .img-preview { width: 100%; height: 160px; object-fit: cover; display: block; border-radius: 10px; }
+    .img-remove {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,0.55); border: none; border-radius: 50%;
+      width: 28px; height: 28px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: white;
+    }
+    .img-remove mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
     @media (max-width: 560px) {
       .dlg { width: 100%; }
       .dlg-body { grid-template-columns: 1fr; }
@@ -236,9 +275,12 @@ export class VehicleFormDialogComponent {
   private readonly svc     = inject(VehicleService);
   readonly dialogRef = inject(MatDialogRef<VehicleFormDialogComponent>);
 
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+
   readonly vehicle: Vehicle | null = inject(MAT_DIALOG_DATA, { optional: true });
   readonly isEdit = !!this.vehicle;
   readonly loading = signal(false);
+  readonly imagePreview = signal<string | null>(this.vehicle?.imageUrl ?? null);
 
   readonly form = this.fb.group({
     name:           [this.vehicle?.name ?? '',            [Validators.required, Validators.maxLength(150)]],
@@ -247,8 +289,45 @@ export class VehicleFormDialogComponent {
     year:           [this.vehicle?.year ?? new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
     licensePlate:   [this.vehicle?.licensePlate ?? ''],
     startCountDate: [this.vehicle?.startCountDate ?? new Date().toISOString().split('T')[0], Validators.required],
-    baseMileage:    [this.vehicle?.baseMileage ?? 0, [Validators.required, Validators.min(0)]]
+    baseMileage:    [this.vehicle?.baseMileage ?? 0, [Validators.required, Validators.min(0)]],
+    imageUrl:       [this.vehicle?.imageUrl ?? '']
   });
+
+  async onFileSelected(event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('La imagen no puede superar 5 MB'); return; }
+    const b64 = await this.compressImage(file);
+    this.imagePreview.set(b64);
+    this.form.patchValue({ imageUrl: b64 });
+  }
+
+  removeImage(e: Event): void {
+    e.stopPropagation();
+    this.imagePreview.set(null);
+    this.form.patchValue({ imageUrl: '' });
+  }
+
+  private compressImage(file: File, maxW = 900, quality = 0.78): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          let { width: w, height: h } = img;
+          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = ev.target!.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
@@ -263,7 +342,8 @@ export class VehicleFormDialogComponent {
       year:           Number(value.year),
       licensePlate:   value.licensePlate || undefined,
       startCountDate: value.startCountDate!,
-      baseMileage:    Number(value.baseMileage)
+      baseMileage:    Number(value.baseMileage),
+      imageUrl:       value.imageUrl || undefined
     };
 
     const op = this.isEdit

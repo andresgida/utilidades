@@ -16,6 +16,7 @@ public sealed class Vehicle : BaseEntity
     public DateOnly StartCountDate { get; private set; }
     public decimal BaseMileage { get; private set; }
     public bool IsActive { get; private set; }
+    public string? ImageUrl { get; private set; }
 
     public User User { get; private set; } = default!;
 
@@ -30,7 +31,8 @@ public sealed class Vehicle : BaseEntity
         int year,
         DateOnly startCountDate,
         decimal baseMileage,
-        string? licensePlate = null)
+        string? licensePlate = null,
+        string? imageUrl = null)
     {
         var vehicle = new Vehicle
         {
@@ -42,14 +44,15 @@ public sealed class Vehicle : BaseEntity
             LicensePlate = licensePlate?.Trim().ToUpperInvariant(),
             StartCountDate = startCountDate,
             BaseMileage = baseMileage,
-            IsActive = true
+            IsActive = true,
+            ImageUrl = imageUrl
         };
 
         vehicle.AddDomainEvent(new VehicleCreatedEvent(vehicle.Id, vehicle.UserId, vehicle.Name));
         return vehicle;
     }
 
-    public void Update(string name, string brand, string model, int year, string? licensePlate, DateOnly startCountDate, decimal baseMileage)
+    public void Update(string name, string brand, string model, int year, string? licensePlate, DateOnly startCountDate, decimal baseMileage, string? imageUrl = null)
     {
         Name = name.Trim();
         Brand = brand.Trim();
@@ -58,6 +61,7 @@ public sealed class Vehicle : BaseEntity
         LicensePlate = licensePlate?.Trim().ToUpperInvariant();
         StartCountDate = startCountDate;
         BaseMileage = baseMileage;
+        ImageUrl = imageUrl;
         UpdatedAt = DateTime.UtcNow;
     }
 

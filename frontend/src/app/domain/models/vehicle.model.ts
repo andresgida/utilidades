@@ -10,9 +10,11 @@ export interface Vehicle {
   isActive: boolean;
   createdAt: string;
   totalRecords: number;
+  imageUrl?: string;
 }
 
 export interface VehicleDetail extends Vehicle {
+  imageUrl?: string;
   records: MileageRecord[];
   statistics: VehicleStatistics;
 }
@@ -43,6 +45,7 @@ export interface CreateVehicle {
   licensePlate?: string;
   startCountDate: string;
   baseMileage: number;
+  imageUrl?: string;
 }
 
 export interface CreateMileageRecord {

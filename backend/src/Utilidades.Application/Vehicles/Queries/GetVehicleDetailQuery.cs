@@ -33,7 +33,7 @@ public sealed class GetVehicleDetailQueryHandler : IRequestHandler<GetVehicleDet
         return new VehicleDetailDto(
             vehicle.Id, vehicle.Name, vehicle.Brand, vehicle.Model, vehicle.Year,
             vehicle.LicensePlate, vehicle.StartCountDate, vehicle.BaseMileage,
-            vehicle.IsActive, vehicle.CreatedAt, records,
+            vehicle.IsActive, vehicle.CreatedAt, vehicle.ImageUrl, records,
             new VehicleStatisticsDto(
                 stats.VehicleId, stats.DaysElapsed, stats.KmTraveled,
                 stats.DailyAverage, stats.AnnualProjection, stats.CurrentMileage));

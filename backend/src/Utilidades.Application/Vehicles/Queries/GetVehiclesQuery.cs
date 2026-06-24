@@ -22,6 +22,6 @@ public sealed class GetVehiclesQueryHandler : IRequestHandler<GetVehiclesQuery, 
         return vehicles.Select(v => new VehicleDto(
             v.Id, v.Name, v.Brand, v.Model, v.Year,
             v.LicensePlate, v.StartCountDate, v.BaseMileage,
-            v.IsActive, v.CreatedAt, v.MileageRecords.Count));
+            v.IsActive, v.CreatedAt, v.MileageRecords.Count, v.ImageUrl));
     }
 }

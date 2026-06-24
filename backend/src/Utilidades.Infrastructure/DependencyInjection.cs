@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,9 +22,11 @@ public static class DependencyInjection
     {
         // ── Database ──────────────────────────────────────────────
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(
-                configuration.GetConnectionString("DefaultConnection"),
-                npgsql => npgsql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+            options
+                .UseNpgsql(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    npgsql => npgsql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName))
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
         // ── Repositories ──────────────────────────────────────────
         services.AddScoped<IUserRepository, UserRepository>();
@@ -83,7 +86,31 @@ public static class DependencyInjection
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync();
+        await ApplyManualSchemaChangesAsync(db);
         await SeedCatalogImageUrlsAsync(db);
+    }
+
+    private static async Task ApplyManualSchemaChangesAsync(ApplicationDbContext db)
+    {
+        await db.Database.ExecuteSqlRawAsync(@"
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_schema='public' AND table_name='vehicles' AND column_name='image_url'
+                ) THEN
+                    ALTER TABLE public.vehicles ADD COLUMN image_url text;
+                END IF;
+
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_schema='public' AND table_name='device_catalog'
+                      AND column_name='image_url' AND character_maximum_length IS NOT NULL
+                ) THEN
+                    ALTER TABLE public.device_catalog ALTER COLUMN image_url TYPE text;
+                END IF;
+            END $$;
+        ");
     }
 
     private static async Task SeedCatalogImageUrlsAsync(ApplicationDbContext db)

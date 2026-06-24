@@ -21,6 +21,7 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.StartCountDate).HasColumnName("start_count_date").IsRequired();
         builder.Property(v => v.BaseMileage).HasColumnName("base_mileage").HasPrecision(10, 2).IsRequired();
         builder.Property(v => v.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(v => v.ImageUrl).HasColumnName("image_url");
 
         builder.Property(v => v.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(v => v.UpdatedAt).HasColumnName("updated_at");
