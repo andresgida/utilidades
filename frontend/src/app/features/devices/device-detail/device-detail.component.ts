@@ -152,7 +152,7 @@ import { AppleDeviceDetail, BatteryCycleRecord, UpdateBatteryCycleRecord, Health
             </div>
             <div class="kpi-card">
               <div class="kpi-lbl">PROMEDIO CARGA</div>
-              <div class="kpi-val">{{ displayedStats()!.dailyAverage | number:'1.2-2' }}<span class="kpi-unit">/día</span></div>
+              <div class="kpi-val">{{ displayedStats()!.dailyAverage | number:'1.2-2' }}<span class="kpi-unit">%</span></div>
               <div class="kpi-sub">Carga saludable</div>
             </div>
             <div class="kpi-card">
