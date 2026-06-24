@@ -35,9 +35,13 @@ import { VehicleDetail, MileageRecord, UpdateMileageRecord } from '../../../doma
           <!-- Hero row: car image + form -->
           <div class="hero-row">
             <div class="hero-card">
-              <div class="hero-overlay">
-                <div class="hero-car-icon"><mat-icon>directions_car</mat-icon></div>
-              </div>
+              @if (detail()!.imageUrl) {
+                <img [src]="detail()!.imageUrl!" [alt]="detail()!.name" class="hero-photo">
+              } @else {
+                <div class="hero-overlay">
+                  <div class="hero-car-icon"><mat-icon>directions_car</mat-icon></div>
+                </div>
+              }
               <div class="hero-info">
                 <div class="hero-name">{{ detail()!.name }}</div>
                 <div class="hero-location">
@@ -230,6 +234,9 @@ import { VehicleDetail, MileageRecord, UpdateMileageRecord } from '../../../doma
       background: linear-gradient(145deg, #1a1040 0%, #0d1b30 40%, #0a2535 100%);
       border: 1px solid var(--border-color);
       display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .hero-photo {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
     }
     .hero-overlay {
       position: absolute; inset: 0;
