@@ -221,7 +221,10 @@ import { AppleDeviceDetail, BatteryCycleRecord, UpdateBatteryCycleRecord, Health
                     } @else {
                       <tr (click)="selectRecord(r)" [class.selected]="selectedRecord()?.id === r.id">
                         <td [class.future-date]="isFuture(r.recordDate)">
-                          <div class="date-main">{{ r.recordDate | date:'dd MMM yyyy' }}</div>
+                          <div class="date-main">
+                            {{ r.recordDate | date:'dd MMM yyyy' }}
+                            @if (isFuture(r.recordDate)) { <span class="future-badge">proyección</span> }
+                          </div>
                           <div class="date-sub">{{ r.notes || 'USB-C' }}</div>
                         </td>
                         <td>
