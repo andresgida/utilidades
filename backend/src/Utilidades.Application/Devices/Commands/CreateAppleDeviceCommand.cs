@@ -41,7 +41,7 @@ public sealed class CreateAppleDeviceCommandHandler : IRequestHandler<CreateAppl
 
         return new AppleDeviceDto(
             device.Id, device.DeviceName, device.CatalogDeviceId,
-            null, device.PurchaseDate, device.IsCustomDevice,
+            null, null, device.PurchaseDate, device.IsCustomDevice,
             device.CreatedAt, 0);
     }
 }

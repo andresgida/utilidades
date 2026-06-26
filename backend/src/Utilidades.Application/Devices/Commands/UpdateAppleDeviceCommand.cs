@@ -39,7 +39,7 @@ public sealed class UpdateAppleDeviceCommandHandler : IRequestHandler<UpdateAppl
 
         return new AppleDeviceDto(
             device.Id, device.DeviceName, device.CatalogDeviceId,
-            device.CatalogDevice?.Name, device.PurchaseDate,
-            device.IsCustomDevice, device.CreatedAt, device.CycleRecords.Count);
+            device.CatalogDevice?.Name, device.CatalogDevice?.ImageUrl,
+            device.PurchaseDate, device.IsCustomDevice, device.CreatedAt, device.CycleRecords.Count);
     }
 }
